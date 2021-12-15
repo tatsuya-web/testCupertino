@@ -3,11 +3,9 @@ import 'package:flutter/cupertino.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import './page/home.dart';
 import './page/coupon.dart';
-import './page/qr.dart';
 import './page/topics.dart';
-import './page/profile.dart';
+import 'page/my_page.dart';
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));
@@ -33,26 +31,19 @@ class AppPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return CupertinoTabScaffold(
       tabBar: CupertinoTabBar(
+        currentIndex: 2,
         items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_sharp),
-            label: 'Home',
-          ),
           BottomNavigationBarItem(
             icon: Icon(Icons.confirmation_number),
             label: 'クーポン',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.qr_code_sharp),
-            label: 'QRコード',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.info_sharp),
-            label: 'お知らせ',
+            icon: Icon(Icons.topic_sharp),
+            label: 'トピック',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.account_circle_sharp),
-            label: 'プロフィール',
+            label: 'マイページ',
           ),
         ],
       ),
@@ -61,17 +52,13 @@ class AppPage extends StatelessWidget {
           builder: (BuildContext context) {
             switch (index) {
               case 0:
-                return HomePage();
-              case 1:
                 return CouponPage();
-              case 2:
-                return QRPage();
-              case 3:
+              case 1:
                 return TopicsPage();
-              case 4:
-                return ProfilePage();
+              case 2:
+                return MyPage();
               default:
-                return HomePage();
+                return MyPage();
             }
           },
         );

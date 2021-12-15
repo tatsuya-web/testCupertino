@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
-class QRPage extends StatelessWidget {
-  QRPage({Key? key}) : super(key: key);
+class MyPage extends StatelessWidget {
+  MyPage({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: const CupertinoNavigationBar(
-        middle: Text('QR'),
+        middle: Text('MyPage'),
       ),
       child: Center(
         child: CupertinoButton(
-          child: const Text('QRPage'),
+          child: const Text('ProfielPage'),
           onPressed: () {
             Navigator.of(context).push(
               CupertinoPageRoute<void>(

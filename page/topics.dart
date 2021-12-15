@@ -95,7 +95,7 @@ class TopicsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: const CupertinoNavigationBar(
-        middle: Text('Info'),
+        middle: Text('Tpoics'),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(
@@ -189,6 +189,7 @@ class TopicsCard extends StatelessWidget {
               CupertinoPageRoute<void>(
                 builder: (BuildContext context) {
                   return TopicsWebView(
+                    title: title,
                     link: link,
                   );
                 },
@@ -202,15 +203,17 @@ class TopicsCard extends StatelessWidget {
 }
 
 class TopicsWebView extends StatelessWidget {
+  final String title;
   final String link;
-  const TopicsWebView({Key? key, required this.link}) : super(key: key);
+  const TopicsWebView({Key? key, required this.title, required this.link})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       resizeToAvoidBottomInset: false,
-      navigationBar: const CupertinoNavigationBar(
-        middle: Text('お知らせ'),
+      navigationBar: CupertinoNavigationBar(
+        middle: Text(title),
       ),
       child: SafeArea(
         child: WebView(
