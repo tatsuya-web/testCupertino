@@ -4,7 +4,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import './page/coupon.dart';
 import './page/topics.dart';
@@ -12,9 +14,29 @@ import './page/my_page.dart';
 import './page/auth.dart';
 import './provider.dart';
 
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  print("バックグラウンドでメッセージを受け取りました");
+}
+
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
+
+const AndroidNotificationChannel channel = AndroidNotificationChannel(
+  'high_importance_channel', // id
+  'High Importance Notifications', // title
+  description:
+      'This channel is used for important notifications.', // description
+  importance: Importance.high,
+);
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+
+  //バックグラウンド用
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
   runApp(const ProviderScope(child: MyApp()));
 }
 
@@ -27,16 +49,53 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: const CupertinoThemeData(primaryColor: Colors.brown),
-      home:
-          (FirebaseAuth.instance.currentUser != null) ? AppPage() : InitPage(),
+      home: AppPage(),
     );
   }
 }
 
-class AppPage extends ConsumerWidget {
-  AppPage({Key? key}) : super(key: key);
+class AppPage extends StatefulWidget {
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  AppPageState createState() => AppPageState();
+}
+
+class AppPageState extends State<AppPage> {
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+  @override
+  void initState() {
+    super.initState();
+    _firebaseMessaging.getToken().then((String? token) {
+      print(token);
+    });
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      print("フォアグラウンドでメッセージを受け取りました");
+      RemoteNotification? notification = message.notification;
+      AndroidNotification? android = message.notification?.android;
+      if (notification != null && android != null) {
+        // フォアグラウンドで通知を受け取った場合、通知を作成して表示する
+        flutterLocalNotificationsPlugin.show(
+          notification.hashCode,
+          notification.title,
+          notification.body,
+          NotificationDetails(
+            // 通知channelを設定する
+            android: AndroidNotificationDetails(
+              channel.id,
+              channel.name,
+              icon: 'launch_background',
+            ),
+          ),
+        );
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (FirebaseAuth.instance.currentUser == null) {
+      return InitPage();
+    }
+
     return CupertinoTabScaffold(
       tabBar: CupertinoTabBar(
         currentIndex: 2,

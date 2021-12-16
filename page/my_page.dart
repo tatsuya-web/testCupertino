@@ -68,22 +68,3 @@ class MyPage extends ConsumerWidget {
     );
   }
 }
-
-class _NextPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
-      navigationBar: const CupertinoNavigationBar(
-        middle: Text('_Next'),
-      ),
-      child: Center(
-        child: CupertinoButton(
-          child: const Text('_NextPage'),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-      ),
-    );
-  }
-}
