@@ -18,6 +18,10 @@ final passwordProvider = StateProvider.autoDispose((ref) {
   return '';
 });
 
+final fcmTokenProvider = StateProvider.autoDispose((ref) {
+  return '';
+});
+
 final pointProvider = StreamProvider.autoDispose((ref) {
   final User user = FirebaseAuth.instance.currentUser!;
   return FirebaseFirestore.instance

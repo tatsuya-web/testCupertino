@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:testcupertino/main.dart';
 import 'package:testcupertino/page/auth.dart';
 
 import '../provider.dart';
@@ -26,7 +27,7 @@ class MyPage extends ConsumerWidget {
             Navigator.of(context).push(
               CupertinoPageRoute(
                 builder: (BuildContext context) {
-                  return InitPage();
+                  return AppPage();
                 },
               ),
             );

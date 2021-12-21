@@ -54,10 +54,11 @@ class InitPage extends StatelessWidget {
                   color: Colors.blue,
                   child: const Text('会員登録'),
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      CupertinoPageRoute(
-                        builder: (context) => const RegisterPage(),
+                    Navigator.of(context).push(
+                      CupertinoPageRoute<void>(
+                        builder: (BuildContext context) {
+                          return RegisterPage();
+                        },
                       ),
                     );
                   },
@@ -155,12 +156,13 @@ class LogInPage extends ConsumerWidget {
 }
 
 class RegisterPage extends ConsumerWidget {
-  const RegisterPage({Key? key}) : super(key: key);
+  RegisterPage({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final infoText = ref.watch(infoTextProvider.state).state;
     final email = ref.watch(emailProvider.state).state;
     final password = ref.watch(passwordProvider.state).state;
+    final fcmToken = ref.watch(fcmTokenProvider.state).state;
     return CupertinoPageScaffold(
       navigationBar: const CupertinoNavigationBar(
         middle: Text('会員登録'),
@@ -201,7 +203,7 @@ class RegisterPage extends ConsumerWidget {
                       final FirebaseAuth auth = FirebaseAuth.instance;
                       final result = await auth.createUserWithEmailAndPassword(
                           email: email, password: password);
-                      ref.read(userProvider.state).state = result.user;
+                      ref.watch(userProvider.state).state = result.user;
 
                       final date = DateTime.now().toLocal().toIso8601String();
                       final userId = result.user?.uid;
@@ -219,6 +221,7 @@ class RegisterPage extends ConsumerWidget {
                         'email': userEmail,
                         'point': 0,
                         'uid': userId,
+                        'fcmToken': fcmToken,
                       });
 
                       await Navigator.of(context)

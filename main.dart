@@ -3,8 +3,11 @@ import 'package:flutter/cupertino.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_in_app_messaging/firebase_in_app_messaging.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
@@ -46,26 +49,24 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CupertinoApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      theme: const CupertinoThemeData(primaryColor: Colors.brown),
-      home: AppPage(),
-    );
+        debugShowCheckedModeBanner: false,
+        title: 'Flutter Demo',
+        theme: const CupertinoThemeData(primaryColor: Colors.brown),
+        home: AppPage());
   }
 }
 
-class AppPage extends StatefulWidget {
-  @override
-  AppPageState createState() => AppPageState();
-}
-
-class AppPageState extends State<AppPage> {
+class AppPage extends ConsumerWidget {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+  final FirebaseInAppMessaging _firebaseInAppMessaging =
+      FirebaseInAppMessaging.instance;
+
   @override
-  void initState() {
-    super.initState();
+  Widget build(BuildContext context, WidgetRef ref) {
+    _firebaseMessaging.requestPermission();
+    _firebaseInAppMessaging.triggerEvent('update_event');
     _firebaseMessaging.getToken().then((String? token) {
-      print(token);
+      ref.watch(fcmTokenProvider.state).state = token.toString();
     });
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       print("フォアグラウンドでメッセージを受け取りました");
@@ -88,48 +89,45 @@ class AppPageState extends State<AppPage> {
         );
       }
     });
-  }
 
-  @override
-  Widget build(BuildContext context) {
     if (FirebaseAuth.instance.currentUser == null) {
       return InitPage();
+    } else {
+      return CupertinoTabScaffold(
+        tabBar: CupertinoTabBar(
+          currentIndex: 2,
+          items: const <BottomNavigationBarItem>[
+            BottomNavigationBarItem(
+              icon: Icon(Icons.confirmation_number),
+              label: 'クーポン',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.topic_sharp),
+              label: 'トピック',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.account_circle_sharp),
+              label: 'マイページ',
+            ),
+          ],
+        ),
+        tabBuilder: (BuildContext context, int index) {
+          return CupertinoTabView(
+            builder: (BuildContext context) {
+              switch (index) {
+                case 0:
+                  return CouponPage();
+                case 1:
+                  return TopicsPage();
+                case 2:
+                  return MyPage();
+                default:
+                  return MyPage();
+              }
+            },
+          );
+        },
+      );
     }
-
-    return CupertinoTabScaffold(
-      tabBar: CupertinoTabBar(
-        currentIndex: 2,
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.confirmation_number),
-            label: 'クーポン',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.topic_sharp),
-            label: 'トピック',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.account_circle_sharp),
-            label: 'マイページ',
-          ),
-        ],
-      ),
-      tabBuilder: (BuildContext context, int index) {
-        return CupertinoTabView(
-          builder: (BuildContext context) {
-            switch (index) {
-              case 0:
-                return CouponPage();
-              case 1:
-                return TopicsPage();
-              case 2:
-                return MyPage();
-              default:
-                return MyPage();
-            }
-          },
-        );
-      },
-    );
   }
 }
